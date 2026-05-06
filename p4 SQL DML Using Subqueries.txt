@@ -1,0 +1,104 @@
+Q1. Find names of employees who work for First Bank Corporation.
+
+SELECT employee_name
+FROM Works
+WHERE company_name = 'First Bank Corporation';
+
+Q2. Find names and cities of employees who work for First Bank Corporation.
+
+SELECT employee_name, city
+FROM Employee
+WHERE employee_name IN (
+SELECT employee_name
+FROM Works
+WHERE company_name = 'First Bank Corporation'
+);
+
+Q3. Find names, street, city of employees at First Bank Corp earning > $10000.
+
+SELECT employee_name, street, city
+FROM Employee
+WHERE employee_name IN (
+    SELECT employee_name
+    FROM Works
+    WHERE company_name = 'First Bank Corporation'
+    AND salary > 10000
+);
+
+Q4. Find employees earning more than EVERY employee of Small Bank Corporation.
+
+SELECT employee_name
+FROM Works
+WHERE salary > ALL (
+SELECT salary
+FROM Works
+WHERE company_name = 'Small Bank Corporation'
+);
+
+Q5. Find employees earning more than the average salary of their company.
+
+SELECT employee_name
+FROM Works w1
+WHERE salary > (
+SELECT AVG(salary)
+FROM Works w2
+WHERE w2.company_name = w1.company_name
+);
+
+Q6. Find the company with the smallest payroll.
+
+SELECT company_name
+FROM Works
+GROUP BY company_name
+HAVING SUM(salary) = (
+SELECT MIN(total_pay)
+FROM (
+SELECT SUM(salary) AS total_pay
+FROM Works
+GROUP BY company_name
+)
+);
+
+Q7. Find companies whose avg salary is higher than avg at First Bank Corporation.
+
+SELECT company_name
+FROM Works
+GROUP BY company_name
+HAVING AVG(salary) > (
+SELECT AVG(salary)
+FROM Works
+WHERE company_name = 'First Bank Corporation'
+);
+
+Q8. Give all First Bank Corporation employees a 10% raise.
+
+UPDATE Works
+SET salary = salary * 1.10
+WHERE company_name = 'First Bank Corporation';
+COMMIT;
+
+Q9. Insert employees earning above average into HighEarners table.
+
+INSERT INTO HighEarners (employee_name, salary)
+SELECT employee_name, salary
+FROM Works
+WHERE salary > (SELECT AVG(salary) FROM Works);
+COMMIT;
+
+Q10. Delete employees working for a Gotham-based company.
+
+-- Step 1: Delete from child table
+DELETE FROM Works
+WHERE company_name IN (
+    SELECT company_name
+    FROM Company
+    WHERE city = 'Gotham'
+);
+
+-- Step 2: Delete from parent table
+DELETE FROM Employee
+WHERE employee_name NOT IN (
+    SELECT employee_name FROM Works
+);
+
+COMMIT;

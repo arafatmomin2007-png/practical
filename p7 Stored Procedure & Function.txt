@@ -1,0 +1,104 @@
+-- =========================================
+-- STORED PROCEDURE: proc_Grade
+-- =========================================
+
+CREATE OR REPLACE PROCEDURE proc_Grade(
+    p_roll  IN  Stud_Marks.Roll%TYPE,
+    p_class OUT Result.Class%TYPE
+) AS
+    v_marks Stud_Marks.Total_Marks%TYPE;
+BEGIN
+    SELECT Total_Marks
+    INTO v_marks
+    FROM Stud_Marks
+    WHERE Roll = p_roll;
+
+    -- Grade Logic (clean using BETWEEN)
+    IF v_marks BETWEEN 990 AND 1500 THEN
+        p_class := 'Distinction';
+
+    ELSIF v_marks BETWEEN 900 AND 989 THEN
+        p_class := 'First Class';
+
+    ELSIF v_marks BETWEEN 825 AND 899 THEN
+        p_class := 'Higher Second Class';
+
+    ELSE
+        p_class := 'Pass';
+    END IF;
+
+EXCEPTION
+    WHEN NO_DATA_FOUND THEN
+        p_class := 'Student not found';
+END proc_Grade;
+/
+
+-- =========================================
+-- STORED FUNCTION: fn_Grade
+-- =========================================
+
+CREATE OR REPLACE FUNCTION fn_Grade(p_marks IN NUMBER)
+RETURN VARCHAR2
+AS
+BEGIN
+    IF p_marks BETWEEN 990 AND 1500 THEN
+        RETURN 'Distinction';
+
+    ELSIF p_marks BETWEEN 900 AND 989 THEN
+        RETURN 'First Class';
+
+    ELSIF p_marks BETWEEN 825 AND 899 THEN
+        RETURN 'Higher Second Class';
+
+    ELSE
+        RETURN 'Pass';
+    END IF;
+END fn_Grade;
+/
+
+-- =========================================
+-- ANONYMOUS BLOCK (Populate Result)
+-- =========================================
+
+DECLARE
+    v_class Result.Class%TYPE;
+    v_roll  Stud_Marks.Roll%TYPE;
+
+    CURSOR c_stud IS
+        SELECT Roll FROM Stud_Marks;
+
+BEGIN
+    OPEN c_stud;
+
+    LOOP
+        FETCH c_stud INTO v_roll;
+        EXIT WHEN c_stud%NOTFOUND;
+
+        -- Call procedure
+        proc_Grade(v_roll, v_class);
+
+        -- Insert or Update using MERGE
+        MERGE INTO Result r
+        USING (
+            SELECT v_roll AS roll, v_class AS cls FROM DUAL
+        ) src
+        ON (r.Roll = src.roll)
+
+        WHEN MATCHED THEN
+            UPDATE SET r.Class = src.cls
+
+        WHEN NOT MATCHED THEN
+            INSERT (Roll, Name, Class)
+            SELECT Roll, Name, v_class
+            FROM Stud_Marks
+            WHERE Roll = v_roll;
+
+    END LOOP;
+
+    CLOSE c_stud;
+
+    COMMIT;
+    DBMS_OUTPUT.PUT_LINE('Result table populated successfully.');
+
+END;
+/

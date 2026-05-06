@@ -1,0 +1,72 @@
+Q1. Create all four tables with appropriate data types and constraints
+
+-- EMPLOYEE
+CREATE TABLE Employee (
+employee_name VARCHAR2(50) PRIMARY KEY,
+street VARCHAR2(100) NOT NULL,
+city VARCHAR2(50) NOT NULL
+); 
+
+ -- COMPANY
+CREATE TABLE Company (
+company_name VARCHAR2(50) PRIMARY KEY,
+city VARCHAR2(50) NOT NULL
+);
+
+ -- WORKS
+CREATE TABLE Works (
+employee_name VARCHAR2(50) NOT NULL,
+company_name VARCHAR2(50) NOT NULL,
+salary NUMBER(10,2) NOT NULL,
+PRIMARY KEY (employee_name, company_name),
+FOREIGN KEY (employee_name) REFERENCES Employee(employee_name),
+FOREIGN KEY (company_name) REFERENCES Company(company_name)
+);
+
+ -- MANAGES
+CREATE TABLE Manages (
+employee_name VARCHAR2(50) NOT NULL,
+manager_name VARCHAR2(50) NOT NULL,
+PRIMARY KEY (employee_name),
+FOREIGN KEY (employee_name) REFERENCES Employee(employee_name),
+FOREIGN KEY (manager_name) REFERENCES Employee(employee_name)
+);
+
+Q2. Create a new table Department using Employee table (existing).
+
+CREATE TABLE Department AS
+SELECT employee_name, city FROM Employee;
+
+Q3. Create Emp_Backup with same structure as Employee but no data.
+
+CREATE TABLE Emp_Backup AS
+SELECT * FROM Employee WHERE 1 = 0;
+
+Q4. Add phone_number column to Employee table, then verify.
+
+ALTER TABLE Employee ADD phone_number VARCHAR2(15);
+ -- Verify
+DESCRIBE Employee;
+
+Q5. Increase the size of the city column in Company table.
+
+ALTER TABLE Company MODIFY city VARCHAR2(100);
+
+Q6. Drop the phone_number column from Employee table.
+
+ALTER TABLE Employee DROP COLUMN phone_number;
+
+Q7. Rename the column salary to monthly_salary in Works table.
+
+ALTER TABLE Works RENAME COLUMN salary TO monthly_salary;
+
+Q8. Insert sample rows into Company, then remove all rows without deleting structure.
+
+INSERT INTO Company VALUES ('First Bank Corporation', 'New York');
+INSERT INTO Company VALUES ('Small Bank Corporation', 'Chicago');
+INSERT INTO Company VALUES ('Tech Corp', 'San Francisco');-- Remove all rows but keep structure
+TRUNCATE TABLE Company;
+
+Q9. Change salary type to DECIMAL(10,2) in Works table.
+
+ALTER TABLE Works MODIFY salary DECIMAL(10,2);

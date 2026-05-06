@@ -1,0 +1,103 @@
+Schema Setup
+
+CREATE TABLE Department (
+Deptno NUMBER(2) PRIMARY KEY,
+Dname VARCHAR2(20) NOT NULL,
+Location VARCHAR2(20) NOT NULL
+);
+ 
+INSERT INTO Department VALUES (10, 'Accounting', 'Mumbai');
+INSERT INTO Department VALUES (20, 'Research', 'Pune');
+INSERT INTO Department VALUES (30, 'Sales', 'Nashik');
+INSERT INTO Department VALUES (40, 'Operations', 'Nagpur');
+ 
+CREATE TABLE Employee (
+Empno NUMBER(4) PRIMARY KEY,
+Ename VARCHAR2(30) NOT NULL,
+Job VARCHAR2(15),
+Mgr NUMBER(4),
+Joined_date DATE,
+Salary NUMBER(10,2),
+Commission NUMBER(10,2),
+Deptno NUMBER(2),
+Address VARCHAR2(50),
+FOREIGN KEY (Deptno) REFERENCES Department(Deptno)
+);
+ 
+INSERT INTO Employee VALUES (1001,'Nilesh Joshi', 'Clerk',
+1005,TO_DATE('17-DEC-95','DD-MON-YY'),2800, 600, 20,'Nashik');
+INSERT INTO Employee VALUES (1002,'Avinash Pawar', 'Salesman',
+1003,TO_DATE('20-FEB-96','DD-MON-YY'),5000,1200, 30,'Nagpur');
+INSERT INTO Employee VALUES (1003,'Amit Kumar', 'Manager',
+1004,TO_DATE('02-APR-86','DD-MON-YY'),2000,NULL, 30,'Pune');
+INSERT INTO Employee VALUES (1004,'Nitin Kulkarni', 'President',NULL,
+TO_DATE('19-APR-86','DD-MON-YY'),50000,NULL,10,'Mumbai');
+INSERT INTO Employee VALUES (1005,'Niraj Sharma', 'Analyst',
+1003,TO_DATE('03-DEC-98','DD-MON-YY'),12000,NULL,20,'Satara');
+INSERT INTO Employee VALUES (1006,'Pushkar
+Deshpande','Salesman',1003,TO_DATE('01-SEP-96','DD-MON-YY'),6500,1500,30,'Pune');
+INSERT INTO Employee VALUES (1007,'Sumit Patil', 'Manager',
+1004,TO_DATE('01-MAY-91','DD-MON-YY'),25000,NULL,20,'Mumbai');
+INSERT INTO Employee VALUES (1008,'Ravi Sawant', 'Analyst',
+1007,TO_DATE('17-NOV-95','DD-MON-YY'),10000,NULL,NULL,'Amaravati');
+
+Q1. Display employee information with explicit column names.
+
+SELECT Empno AS "Employee Number",
+Ename AS "Employee Name",
+Job AS "Job Title",
+Mgr AS "Manager ID",
+Joined_date AS "Date of Joining",
+Salary AS "Salary",
+Commission AS "Commission",
+Deptno AS "Department No",
+Address AS "Address"
+FROM Employee;
+
+Q2. Display unique jobs from the table.
+
+SELECT DISTINCT Job FROM Employee;
+
+Q3. Change location of dept 40 to Bangalore.
+
+UPDATE Department SET Location = 'Bangalore' WHERE Deptno = 40;
+COMMIT;
+
+Q4. Change the name of employee 1003 to Nikhil Gosavi.
+
+UPDATE Employee SET Ename = 'Nikhil Gosavi' WHERE Empno = 1003;
+COMMIT;
+
+Q5. Delete Pushkar Deshpande from employee table.
+
+DELETE FROM Employee WHERE Empno = 1006;
+COMMIT;
+
+Q6. Display employees whose job is 'Manager' or 'Analyst' (using OR and IN).
+
+-- Using OR
+SELECT * FROM Employee WHERE Job = 'Manager' OR Job = 'Analyst';
+ -- Using IN
+SELECT * FROM Employee WHERE Job IN ('Manager', 'Analyst');
+
+Q7. Display employee name and dept number for employees in dept 10, 20, 30, 40.
+
+SELECT Ename, Deptno
+FROM Employee
+WHERE Deptno IN (10, 20, 30, 40);
+
+Q8. Find names and joined dates of employees whose names start with 'A'.
+
+SELECT Ename, Joined_date FROM Employee WHERE Ename LIKE 'A%';
+
+Q9. Find names of employees having 'i' as second letter.
+
+SELECT Ename FROM Employee WHERE Ename LIKE '_i%';
+
+Q10. Find dept number and max salary where max salary > 5000.
+
+SELECT Deptno, MAX(Salary) AS Max_Salary
+FROM Employee
+WHERE Deptno IS NOT NULL
+GROUP BY Deptno
+HAVING MAX(Salary) > 5000;
