@@ -1,7 +1,3 @@
--- =========================================
--- STORED PROCEDURE: proc_Grade
--- =========================================
-
 CREATE OR REPLACE PROCEDURE proc_Grade(
     p_roll  IN  Stud_Marks.Roll%TYPE,
     p_class OUT Result.Class%TYPE
@@ -33,10 +29,6 @@ EXCEPTION
 END proc_Grade;
 /
 
--- =========================================
--- STORED FUNCTION: fn_Grade
--- =========================================
-
 CREATE OR REPLACE FUNCTION fn_Grade(p_marks IN NUMBER)
 RETURN VARCHAR2
 AS
@@ -55,10 +47,6 @@ BEGIN
     END IF;
 END fn_Grade;
 /
-
--- =========================================
--- ANONYMOUS BLOCK (Populate Result)
--- =========================================
 
 DECLARE
     v_class Result.Class%TYPE;
